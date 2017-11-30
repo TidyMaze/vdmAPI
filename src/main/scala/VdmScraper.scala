@@ -26,12 +26,10 @@ class VdmScraper {
     
     val currentStories = scala.collection.mutable.ListBuffer.empty[Story]
     
-    // TODO : go to next page
-    while(currentStories.length < MAX_STORIES){
-      val doc = browser.get(getUrlForPage(1))
-      val articlesDOM = doc >> elementList("#content > div > div.col-sm-8 > div.row .art-panel")
-      currentStories ++= articlesDOM.map(extractStory)
-      println(s"Scraped : ${currentStories.length}")
+    val storiesIterator = new StoriesIterator(getUrlForPage, browser)
+    
+    while(storiesIterator.hasNext && currentStories.length < MAX_STORIES){
+        currentStories += extractStory(storiesIterator.next())
     }
     currentStories foreach println
     println("Done with extracting content")
