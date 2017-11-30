@@ -1,7 +1,9 @@
-import tools.VdmDateParser
+package parsers
+
 import org.scalatest.FlatSpec
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
+import org.scalactic.source.Position.apply
 
 class VdmDateParserTest extends FlatSpec {
 
