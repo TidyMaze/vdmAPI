@@ -35,5 +35,6 @@ class StoriesDAO {
   def insert(s: Story): Future[Int] = db.run(stories += s)
 
   def getAllStories: Future[Seq[Story]] = db.run(stories.result)
-
+  
+  def getLatestStory: Future[Option[Story]] = db.run(stories.sortBy(_.date.desc).result.headOption)
 }

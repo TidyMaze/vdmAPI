@@ -11,6 +11,7 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 
 import scala.concurrent.duration._
+import java.time.LocalDateTime
 
 class VdmScraper {
   val ROOT_URL = "http://www.viedemerde.fr"
@@ -23,17 +24,19 @@ class VdmScraper {
 
   def getUrlForPage(index: Int): String = s"$ROOT_URL/?page=$index"
 
+  def scrapeAndStoreToDb(latestStoryDate: Option[LocalDateTime]) = {
+    println(s"Storing to DB")
+    Future.sequence(scrapeStories(latestStoryDate).map(s => storiesDao.insert(s)))
+  }
+  
   def run() = {
     println("Starting VDMApi scraping")
-    val newStories = scrapeStories()
-
-    println("Samples extracted :")
-    newStories.slice(0, 5) foreach println
-
-    println(s"Done with extracting $MAX_STORIES stories")
-    println(s"Storing to DB")
-
-    val allWork = storeStoriesInDB(newStories)
+    
+    val allWork = for {
+      latestStoryDate <- storiesDao.getLatestStory.map(_.map(_.date))
+      resInsert <- scrapeAndStoreToDb(latestStoryDate)
+      resGetAll <- storiesDao.getAllStories
+    } yield resGetAll
     
     allWork.onComplete {
       case Failure(t) => println("Error : " + t.getMessage)
@@ -47,23 +50,18 @@ class VdmScraper {
     println("Exiting VDMApi scraper")
   }
 
-  def storeStoriesInDB(acc: List[model.Story]) = {
-    val futureAllInsertions = Future.sequence(acc.map(s => storiesDao.insert(s)))
-    val allWork = for {
-      resInsert <- futureAllInsertions
-      resGetAll <- storiesDao.getAllStories
-    } yield resGetAll
-
-    allWork
-  }
-
-  def scrapeStories() = {
+  def scrapeStories(latest: Option[LocalDateTime]) = {
     val acc = scala.collection.mutable.ListBuffer.empty[Story]
     val it = new StoriesIterator(getUrlForPage, browser)
-    while (it.hasNext && acc.length < MAX_STORIES) {
+    var reachedAlreadyParsed = false
+    while (it.hasNext && acc.length < MAX_STORIES && !reachedAlreadyParsed) {
       val currentStory = parser.extractStory(it.next())
-      acc += currentStory
+      if(latest.forall(currentStory.date.isAfter(_))) acc += currentStory
+      else reachedAlreadyParsed = true
     }
+    println(s"Done with extracting up to $MAX_STORIES stories :  ${acc.length}")
+    println("Samples extracted :")
+    acc.slice(0, 5) foreach println
     acc.toList
   }
 }
