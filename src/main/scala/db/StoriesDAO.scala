@@ -9,6 +9,8 @@ import scala.util.Failure
 import model.Story
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import scala.concurrent.Future
+import slick.dbio.Effect.Write
 
 class Stories(tag: Tag) extends Table[Story](tag, "stories") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -30,27 +32,15 @@ class StoriesDAO {
   val db = Database.forConfig("postgres")
   val stories = TableQuery[Stories]
 
-  def addStory = {
+  def insert(s: Story): Future[Int] = {
     try {
-      val actions = DBIO.seq(
-        stories.schema.create,
-        stories += Story(None, Some("Bla"), "Auth", LocalDateTime.now())
-      )
-
-      db.run(actions).onComplete {
-        case Success(r) => println("Query OK")
-        case Failure(t) => println("failure in db query " + t.getMessage)
-      }
+      return db.run(stories += s)
     } finally db.close
   }
 
-  def getAllStories = {
+  def getAllStories: Future[Seq[Story]] = {
     try {
-      println("Stories:")
-      db.run(stories.result).map(_.foreach(println)).onComplete {
-        case Success(r) => println("Query OK")
-        case Failure(t) => println("failure in db query " + t.getMessage)
-      }
+      return db.run(stories.result)
     } finally db.close
   }
 

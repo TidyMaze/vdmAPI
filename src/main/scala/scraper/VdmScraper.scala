@@ -4,6 +4,9 @@ import db.StoriesDAO
 import model.Story
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import parsers.VdmParser
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Success
+import scala.util.Failure
 
 class VdmScraper {
   val ROOT_URL = "http://www.viedemerde.fr"
@@ -26,6 +29,9 @@ class VdmScraper {
     println(s"Done with extracting $MAX_STORIES stories")
     
     val storiesDao = new StoriesDAO()
-    storiesDao.getAllStories
+    println("Stored stories :")
+    val storiesFuture = storiesDao.getAllStories
+    storiesFuture.onFailure { case t => println(t.getMessage) }
+    storiesFuture foreach { println }
   }  
 }
