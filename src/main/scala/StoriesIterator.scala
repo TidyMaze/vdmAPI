@@ -10,10 +10,15 @@ import net.ruippeixotog.scalascraper.util.EitherRightBias._
 import net.ruippeixotog.scalascraper.model.ElementQuery
 
 class StoriesIterator(getPageUrlFn: Int => String, browser: Browser) extends Iterator[Element] {
+  
+  val STORIES_PATH = "#content > div > div.col-sm-8 > div.row .art-panel"
+  
   var currentPage: Int = 0
   var currentInPage: Int = -1
   var currentPageStories: List[Element] = List.empty[Element]
   var nextPageStories: List[Element] = List.empty[Element]
+  
+  def getStoriesElementsInPage(indexPage: Int): List[Element] = browser.get(getPageUrlFn(indexPage)) >> elementList(STORIES_PATH)
   
   /**
    * Satisfies the Itarator contract by preloading next page if it's the last item
@@ -21,7 +26,7 @@ class StoriesIterator(getPageUrlFn: Int => String, browser: Browser) extends Ite
   def hasNext: Boolean = {
     // TODO avoid multiple loading on several hasNext() when on the last item of page
     if((currentPage == 0 && nextPageStories.isEmpty) || (currentInPage == currentPageStories.length-1)){
-      nextPageStories = (browser.get(getPageUrlFn(currentPage+1))) >> elementList("#content > div > div.col-sm-8 > div.row .art-panel")
+      nextPageStories = getStoriesElementsInPage(currentPage + 1)
       return nextPageStories.nonEmpty
     }
     return true

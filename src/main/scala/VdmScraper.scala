@@ -11,6 +11,7 @@ import net.ruippeixotog.scalascraper.util.EitherRightBias._
 import net.ruippeixotog.scalascraper.model.ElementQuery
 import java.time.LocalDateTime
 import parsers.VdmMetaParser
+import db.StoriesDAO
 
 class VdmScraper {
   val ROOT_URL = "http://www.viedemerde.fr"
@@ -23,17 +24,17 @@ class VdmScraper {
   
   def run() = {
     println("Starting VDMApi scraping")
-    
-    val currentStories = scala.collection.mutable.ListBuffer.empty[Story]
-    
-    val storiesIterator = new StoriesIterator(getUrlForPage, browser)
-    
-    while(storiesIterator.hasNext && currentStories.length < MAX_STORIES){
-        currentStories += extractStory(storiesIterator.next())
+    val acc = scala.collection.mutable.ListBuffer.empty[Story]
+    val it = new StoriesIterator(getUrlForPage, browser)
+    while(it.hasNext && acc.length < MAX_STORIES){
+        val currentStory = extractStory(it.next())
+        acc += currentStory
     }
-    currentStories foreach println
-    println("Done with extracting content")
+    acc foreach println
+    println(s"Done with extracting $MAX_STORIES stories")
     
+    val storiesDao = new StoriesDAO()
+    storiesDao.getAllStories
   }
 
   def extractStory(el: Element): Story = {
