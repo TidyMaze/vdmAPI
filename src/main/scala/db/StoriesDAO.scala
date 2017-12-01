@@ -14,17 +14,17 @@ import slick.dbio.Effect.Write
 
 class Stories(tag: Tag) extends Table[Story](tag, "stories") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def content = column[String]("content")
+  def content = column[Option[String]]("content")
   def author = column[String]("author")
   def date = column[Timestamp]("date")
   def * = (id.?, content, author, date) <> (convModel, convStore)
   
-  def convStore(s: Story): Option[(Option[Int], String, String, Timestamp)] = {
-    return Some((s.id, s.content.getOrElse(null), s.author, Timestamp.valueOf(s.date)))
+  def convStore(s: Story): Option[(Option[Int], Option[String], String, Timestamp)] = {
+    return Some((s.id, s.content, s.author, Timestamp.valueOf(s.date)))
   }
   
-  def convModel(t: (Option[Int], String, String, Timestamp)): Story = t match {
-    case (id: Option[Int], content: String, author: String, date: Timestamp) => Story(id, Option(content), author, date.toLocalDateTime()) 
+  def convModel(t: (Option[Int], Option[String], String, Timestamp)): Story = t match {
+    case (id: Option[Int], content: Option[String], author: String, date: Timestamp) => Story(id, content, author, date.toLocalDateTime()) 
   }
 }
 
@@ -33,15 +33,12 @@ class StoriesDAO {
   val stories = TableQuery[Stories]
 
   def insert(s: Story): Future[Int] = {
-    try {
-      return db.run(stories += s)
-    } finally db.close
+    println(s"Storing $s")
+    return db.run(stories += s)
   }
 
   def getAllStories: Future[Seq[Story]] = {
-    try {
-      return db.run(stories.result)
-    } finally db.close
+    return db.run(stories.result)
   }
 
 }

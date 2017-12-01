@@ -7,15 +7,23 @@ import parsers.VdmParser
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Success
 import scala.util.Failure
+import scala.concurrent.Future
+import scala.concurrent.Await
+
+import scala.concurrent.duration._
 
 class VdmScraper {
   val ROOT_URL = "http://www.viedemerde.fr"
   val MAX_STORIES = 200
   
   val parser = new VdmParser
-   val browser = JsoupBrowser()
+  val browser = JsoupBrowser()
   
+  val storiesDao = new StoriesDAO()
+   
   def getUrlForPage(index: Int): String = s"$ROOT_URL/?page=$index"
+
+
   
   def run() = {
     println("Starting VDMApi scraping")
@@ -27,11 +35,27 @@ class VdmScraper {
     }
     acc foreach println
     println(s"Done with extracting $MAX_STORIES stories")
-    
-    val storiesDao = new StoriesDAO()
+    println(s"Storing to DB")
+    val insertionsFutures = acc.toList.map(s => storiesDao.insert(s))
+    println(s"Got ${insertionsFutures.length} $insertionsFutures")
+    val futureAllInsertions = Future.sequence(insertionsFutures)
+    futureAllInsertions.onComplete {
+      case Failure(t) => println("Error : " + t.getMessage)
+      case Success(l) => println("All inserted !")
+    }
+    Await.result(futureAllInsertions, 5.minutes)
+    val showFuture = showDB
+    showFuture.onComplete {
+      case Failure(t) => println("Error : " + t.getMessage)
+      case Success(l) => println("All inserted !")
+    }
+    Await.result(showFuture, 5.minutes)
+    println("Exiting VDMApi scraper")
+  }
+  
+  def showDB(): Future[Unit] = {
     println("Stored stories :")
     val storiesFuture = storiesDao.getAllStories
-    storiesFuture.onFailure { case t => println(t.getMessage) }
-    storiesFuture foreach { println }
-  }  
+    return storiesFuture.map { l => l foreach println }
+  }
 }
