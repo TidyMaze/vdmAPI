@@ -32,13 +32,8 @@ class StoriesDAO {
   val db = Database.forConfig("postgres")
   val stories = TableQuery[Stories]
 
-  def insert(s: Story): Future[Int] = {
-    println(s"Storing $s")
-    return db.run(stories += s)
-  }
+  def insert(s: Story): Future[Int] = db.run(stories += s)
 
-  def getAllStories: Future[Seq[Story]] = {
-    return db.run(stories.result)
-  }
+  def getAllStories: Future[Seq[Story]] = db.run(stories.result)
 
 }

@@ -33,29 +33,27 @@ class VdmScraper {
         val currentStory = parser.extractStory(it.next())
         acc += currentStory
     }
-    acc foreach println
+    
+    println("Samples extracted :")
+    acc.slice(0, 5) foreach println
+    
     println(s"Done with extracting $MAX_STORIES stories")
     println(s"Storing to DB")
-    val insertionsFutures = acc.toList.map(s => storiesDao.insert(s))
-    println(s"Got ${insertionsFutures.length} $insertionsFutures")
-    val futureAllInsertions = Future.sequence(insertionsFutures)
-    futureAllInsertions.onComplete {
+    val futureAllInsertions = Future.sequence(acc.map(s => storiesDao.insert(s)))
+    
+    val allWork = for {
+      resInsert <- futureAllInsertions
+      resGetAll <- storiesDao.getAllStories
+    } yield resGetAll
+    
+    allWork.onComplete {
       case Failure(t) => println("Error : " + t.getMessage)
-      case Success(l) => println("All inserted !")
+      case Success(l) => {
+        println("All inserted ! Exemples inserted :")
+        l.slice(0, 5) foreach println
+      }
     }
-    Await.result(futureAllInsertions, 5.minutes)
-    val showFuture = showDB
-    showFuture.onComplete {
-      case Failure(t) => println("Error : " + t.getMessage)
-      case Success(l) => println("All inserted !")
-    }
-    Await.result(showFuture, 5.minutes)
+    Await. result(allWork, 5.minutes)
     println("Exiting VDMApi scraper")
-  }
-  
-  def showDB(): Future[Unit] = {
-    println("Stored stories :")
-    val storiesFuture = storiesDao.getAllStories
-    return storiesFuture.map { l => l foreach println }
   }
 }
