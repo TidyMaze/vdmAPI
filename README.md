@@ -19,7 +19,7 @@ Simple API to fetch VDM stories [from official website](http://www.viedemerde.fr
   "posts": [
     {
       "id": 1,
-      "content": "Aujourd'hui, iAdvize m'a demandé de réaliser un test de développeur.",
+      "content": "Aujourd'hui, on m'a demandé de réaliser un test de développeur.",
       "date": "2017-01-01T00:00:00Z",
       "author": "Genius"
     } 
@@ -45,7 +45,7 @@ Simple API to fetch VDM stories [from official website](http://www.viedemerde.fr
 {
   "post": {
        "id": 1,
-       "content": "Aujourd'hui, iAdvize m'a demandé de réaliser un test de développeur.",
+       "content": "Aujourd'hui, on m'a demandé de réaliser un test de développeur.",
        "date": "2017-01-01T00:00:00Z",
        "author": "Genius"
      }
