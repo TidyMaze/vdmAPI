@@ -17,7 +17,7 @@ class VdmParser {
     val content = el >?> text("> div > div > div.panel-content > p > a")
     val meta = el >> text("div.text-center")
     val (author, date) = parseMeta(meta)
-    Story(content, date, author)
+    Story(None, content, author, date)
   }
   
   def parseDate(dateStr: String): LocalDateTime = LocalDateTime.parse(dateStr, formatter);

@@ -6,13 +6,24 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import java.sql.Date
 import scala.util.Success
 import scala.util.Failure
+import model.Story
+import java.sql.Timestamp
+import java.time.LocalDateTime
 
-class Stories(tag: Tag) extends Table[(Int, String, String, Date)](tag, "stories") {
-  def id = column[Int]("id", O.PrimaryKey)
+class Stories(tag: Tag) extends Table[Story](tag, "stories") {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def content = column[String]("content")
   def author = column[String]("author")
-  def date = column[Date]("date")
-  def * = (id, content, author, date)
+  def date = column[Timestamp]("date")
+  def * = (id.?, content, author, date) <> (convModel, convStore)
+  
+  def convStore(s: Story): Option[(Option[Int], String, String, Timestamp)] = {
+    return Some((s.id, s.content.getOrElse(null), s.author, Timestamp.valueOf(s.date)))
+  }
+  
+  def convModel(t: (Option[Int], String, String, Timestamp)): Story = t match {
+    case (id: Option[Int], content: String, author: String, date: Timestamp) => Story(id, Option(content), author, date.toLocalDateTime()) 
+  }
 }
 
 class StoriesDAO {
@@ -23,7 +34,7 @@ class StoriesDAO {
     try {
       val actions = DBIO.seq(
         stories.schema.create,
-        stories += (42, "Bla", "Auth", new java.sql.Date(new java.util.Date().getTime))
+        stories += Story(None, Some("Bla"), "Auth", LocalDateTime.now())
       )
 
       db.run(actions).onComplete {
@@ -36,10 +47,7 @@ class StoriesDAO {
   def getAllStories = {
     try {
       println("Stories:")
-      db.run(stories.result).map(_.foreach {
-        case (id, content, author, date) =>
-          println("  " + id + "\t" + content + "\t" + author + "\t" + date)
-      }).onComplete {
+      db.run(stories.result).map(_.foreach(println)).onComplete {
         case Success(r) => println("Query OK")
         case Failure(t) => println("failure in db query " + t.getMessage)
       }
