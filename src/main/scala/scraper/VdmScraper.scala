@@ -56,8 +56,10 @@ class VdmScraper {
     var reachedAlreadyParsed = false
     while (it.hasNext && acc.length < MAX_STORIES && !reachedAlreadyParsed) {
       val currentStory = parser.extractStory(it.next())
-      if(latest.forall(currentStory.date.isAfter(_))) acc += currentStory
-      else reachedAlreadyParsed = true
+      
+      if(!currentStory.content.exists(c => c.startsWith("Aujourd'hui, ") )){ }
+      else if(latest.exists(!currentStory.date.isAfter(_))) { reachedAlreadyParsed = true }
+      else acc += currentStory
     }
     println(s"Done with extracting up to $MAX_STORIES stories :  ${acc.length}")
     println("Samples extracted :")
