@@ -1,13 +1,10 @@
+package scraper
+
 import net.ruippeixotog.scalascraper.browser.Browser
-
-
-import net.ruippeixotog.scalascraper.browser.{ HtmlUnitBrowser, JsoupBrowser }
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.model.Element
-import net.ruippeixotog.scalascraper.scraper.HtmlValidator
 import net.ruippeixotog.scalascraper.util.EitherRightBias._
-import net.ruippeixotog.scalascraper.model.ElementQuery
 
 class StoriesIterator(getPageUrlFn: Int => String, browser: Browser) extends Iterator[Element] {
   
