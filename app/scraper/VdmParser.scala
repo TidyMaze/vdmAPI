@@ -1,4 +1,4 @@
-package parsers
+package scraper
 
 import java.util.Locale
 import java.time.LocalDateTime

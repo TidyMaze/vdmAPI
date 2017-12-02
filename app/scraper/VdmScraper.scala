@@ -3,13 +3,11 @@ package scraper
 import db.StoriesDAO
 import model.Story
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
-import parsers.VdmParser
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Success
 import scala.util.Failure
 import scala.concurrent.Future
 import scala.concurrent.Await
-
 import scala.concurrent.duration._
 import java.time.LocalDateTime
 

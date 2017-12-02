@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
 import org.scalactic.source.Position.apply
 import java.text.ParseException
+import scraper.VdmParser
 
 class VdmDateParserTest extends FlatSpec {
 
