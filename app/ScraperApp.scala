@@ -1,5 +1,5 @@
 import scraper.VdmScraper
 
-object Main extends App {
+object ScraperApp extends App {
   new VdmScraper().run()
 }

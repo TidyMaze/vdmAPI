@@ -1,0 +1,2 @@
+GET    /               api.StoriesController.index()
+->     /v1/stories               api.StoriesRouter
