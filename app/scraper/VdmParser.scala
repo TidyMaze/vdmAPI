@@ -9,6 +9,10 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 import model.Story
+import java.time.ZonedDateTime
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.ZoneId
 
 class VdmParser {
   val formatter = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy HH:mm").withLocale(Locale.FRENCH);
@@ -20,9 +24,10 @@ class VdmParser {
     Story(None, content, author, date)
   }
   
-  def parseDate(dateStr: String): LocalDateTime = LocalDateTime.parse(dateStr, formatter);
+  // Assuming the date one website is in Paris Zone (GMT +1)
+  def parseDate(dateStr: String): Instant = ZonedDateTime.of(LocalDateTime.parse(dateStr, formatter), ZoneId.of("Europe/Paris")).toInstant();
   
-  def parseMeta(metaStr: String): (String, LocalDateTime) = {
+  def parseMeta(metaStr: String): (String, Instant) = {
     val metaSplit = metaStr.split("/");
     if (metaSplit.length < 2) throw new ParseException("There are less than 2 parts in meta : " + metaStr, 0);
     val author = "Par (.*) - ".r.findFirstMatchIn(metaSplit(0)).map(m => m.group(1))

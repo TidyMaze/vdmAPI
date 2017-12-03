@@ -10,6 +10,8 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.Instant
 
 class VdmScraper {
   val ROOT_URL = "http://www.viedemerde.fr"
@@ -22,7 +24,7 @@ class VdmScraper {
 
   def getUrlForPage(index: Int): String = s"$ROOT_URL/?page=$index"
 
-  def scrapeAndStoreToDb(latestStoryDate: Option[LocalDateTime]) = {
+  def scrapeAndStoreToDb(latestStoryDate: Option[Instant]) = {
     println(s"Storing to DB")
     Future.sequence(scrapeStories(latestStoryDate).map(s => storiesDao.insert(s)))
   }
@@ -48,7 +50,7 @@ class VdmScraper {
     println("Exiting VDMApi scraper")
   }
 
-  def scrapeStories(latest: Option[LocalDateTime]) = {
+  def scrapeStories(latest: Option[Instant]) = {
     val acc = scala.collection.mutable.ListBuffer.empty[Story]
     val it = new StoriesIterator(getUrlForPage, browser)
     var reachedAlreadyParsed = false

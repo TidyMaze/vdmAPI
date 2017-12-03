@@ -13,13 +13,14 @@ import play.api.mvc.AbstractController
 import play.api.mvc.ControllerComponents
 import java.time.Instant
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 class StoriesController @Inject() (cc: ControllerComponents) extends AbstractController(cc) {
   val storiesDao = new StoriesDAO
 
   def index(from: Option[String], to: Option[String], author: Option[String]) = Action.async {
-    val fromParsed = from.map(d => LocalDateTime.ofInstant(Instant.parse(d), ZoneOffset.UTC))
-    val toParsed = to.map(d => LocalDateTime.ofInstant(Instant.parse(d), ZoneOffset.UTC))
+    val fromParsed = from.map(d => Instant.parse(d))
+    val toParsed = to.map(d => Instant.parse(d))
     storiesDao.getStoriesFiltered(fromParsed, toParsed, author).map(stories =>
       Ok(Json.obj(
         "posts" -> stories,
@@ -30,7 +31,7 @@ class StoriesController @Inject() (cc: ControllerComponents) extends AbstractCon
 
   def show(id: Int) = Action {
 
-    val obj = Story(Some(42), Some("Content"), "author", LocalDateTime.now())
+    val obj = Story(Some(42), Some("Content"), "author", Instant.now())
 
     Ok(Json.obj("post" -> obj))
   }
