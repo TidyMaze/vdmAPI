@@ -40,7 +40,6 @@ class StoriesDAO {
   def getAllStories: Future[Seq[Story]] = db.run(stories.sortBy(_.date.desc).result)
 
   def getStoriesFiltered(from: Option[Instant], to: Option[Instant], author: Option[String]): Future[Seq[Story]] = {
-
     val q = stories
       .filter(s => if (author.isDefined) s.author === author.get else LiteralColumn(true))
       .filter(s => if (from.isDefined) s.date >= Timestamp.from(from.get) else LiteralColumn(true))
@@ -49,5 +48,7 @@ class StoriesDAO {
     db.run(q.result)
   }
 
+  def getStoryById(id: Int): Future[Option[Story]] = db.run(stories.filter(_.id === id).result.headOption)
+  
   def getLatestStory: Future[Option[Story]] = db.run(stories.sortBy(_.date.desc).result.headOption)
 }

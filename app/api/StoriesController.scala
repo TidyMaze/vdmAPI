@@ -29,11 +29,11 @@ class StoriesController @Inject() (cc: ControllerComponents) extends AbstractCon
     )
   }
 
-  def show(id: Int) = Action {
-
-    val obj = Story(Some(42), Some("Content"), "author", Instant.now())
-
-    Ok(Json.obj("post" -> obj))
+  def show(id: Int) = Action.async {
+    storiesDao.getStoryById(id).map {
+      case Some(s) => Ok(Json.obj("post" -> s))
+      case None => NotFound(s"404 : Post with id $id doesn't exist :(")
+    }
   }
 
 }
