@@ -1,2 +1,2 @@
-GET   /api/posts       api.StoriesController.index()
+GET   /api/posts       api.StoriesController.index(from: Option[String], to: Option[String], author: Option[String])
 GET   /api/posts/:id   api.StoriesController.show(id: Int)
