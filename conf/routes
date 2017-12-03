@@ -1,2 +1,2 @@
-GET    /               api.StoriesController.index()
-->     /v1/stories               api.StoriesRouter
+GET   /api/posts       api.StoriesController.index()
+GET   /api/posts/:id   api.StoriesController.show(id: Int)
