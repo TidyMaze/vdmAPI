@@ -1,6 +1,6 @@
 package db
 
-import slick.jdbc.H2Profile.api._
+import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.sql.Date
@@ -14,6 +14,10 @@ import slick.dbio.Effect.Write
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.ZoneOffset
+import slick.jdbc.meta.MTable
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import com.google.inject.Singleton
 
 class Stories(tag: Tag) extends Table[Story](tag, "stories") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -35,6 +39,20 @@ class StoriesDAO {
   val db = Database.forConfig("postgres")
   val stories = TableQuery[Stories]
 
+  def createTableIfNotInTables(tables: Vector[MTable]): Future[Unit] = {
+    if (!tables.exists(_.name.name == stories.baseTableRow.tableName)) {
+      val create = stories.schema.create
+      create.statements foreach println
+      db.run(create)
+    } else {
+      Future()
+    }
+  }
+
+  val createTableIfNotExist: Future[Unit] = db.run(MTable.getTables).flatMap(createTableIfNotInTables)
+
+  Await.result(createTableIfNotExist, Duration.Inf)
+
   def insert(s: Story): Future[Int] = db.run(stories += s)
 
   def getAllStories: Future[Seq[Story]] = db.run(stories.sortBy(_.date.desc).result)
@@ -49,6 +67,6 @@ class StoriesDAO {
   }
 
   def getStoryById(id: Int): Future[Option[Story]] = db.run(stories.filter(_.id === id).result.headOption)
-  
+
   def getLatestStory: Future[Option[Story]] = db.run(stories.sortBy(_.date.desc).result.headOption)
 }

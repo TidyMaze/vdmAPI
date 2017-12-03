@@ -6,6 +6,7 @@ Simple API to fetch VDM stories [from official website](http://www.viedemerde.fr
 
 - Clone project
 - `cd vdmAPI`
+- build docker image with `sbt docker:publishLocal`
 - start docker iamges with `docker-compose up`
 - start scraper import with `docker run vdmAPI "sbt \"runMain ScraperApp\""`
 
