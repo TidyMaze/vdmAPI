@@ -11,6 +11,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import scala.concurrent.Future
 import slick.dbio.Effect.Write
+import java.time.Instant
 
 class Stories(tag: Tag) extends Table[Story](tag, "stories") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -18,13 +19,13 @@ class Stories(tag: Tag) extends Table[Story](tag, "stories") {
   def author = column[String]("author")
   def date = column[Timestamp]("date")
   def * = (id.?, content, author, date) <> (convModel, convStore)
-  
+
   def convStore(s: Story): Option[(Option[Int], Option[String], String, Timestamp)] = {
     return Some((s.id, s.content, s.author, Timestamp.valueOf(s.date)))
   }
-  
+
   def convModel(t: (Option[Int], Option[String], String, Timestamp)): Story = t match {
-    case (id: Option[Int], content: Option[String], author: String, date: Timestamp) => Story(id, content, author, date.toLocalDateTime()) 
+    case (id: Option[Int], content: Option[String], author: String, date: Timestamp) => Story(id, content, author, date.toLocalDateTime())
   }
 }
 
@@ -34,7 +35,17 @@ class StoriesDAO {
 
   def insert(s: Story): Future[Int] = db.run(stories += s)
 
-  def getAllStories: Future[Seq[Story]] = db.run(stories.result)
-  
+  def getAllStories: Future[Seq[Story]] = db.run(stories.sortBy(_.date.desc).result)
+
+  def getStoriesFiltered(from: Option[LocalDateTime], to: Option[LocalDateTime], author: Option[String]): Future[Seq[Story]] = {
+
+    val q = stories
+      .filter(s => if (author.isDefined) s.author === author.get else LiteralColumn(true))
+      .filter(s => if (from.isDefined) s.date >= Timestamp.valueOf(from.get) else LiteralColumn(true))
+      .filter(s => if (to.isDefined) s.date <= Timestamp.valueOf(to.get) else LiteralColumn(true))
+      .sortBy(_.date.desc)
+    db.run(q.result)
+  }
+
   def getLatestStory: Future[Option[Story]] = db.run(stories.sortBy(_.date.desc).result.headOption)
 }

@@ -11,12 +11,16 @@ import model.Story.storyWrites
 import play.api.libs.json.Json
 import play.api.mvc.AbstractController
 import play.api.mvc.ControllerComponents
+import java.time.Instant
+import java.time.ZoneOffset
 
 class StoriesController @Inject() (cc: ControllerComponents) extends AbstractController(cc) {
   val storiesDao = new StoriesDAO
 
   def index(from: Option[String], to: Option[String], author: Option[String]) = Action.async {
-    storiesDao.getAllStories.map(stories =>
+    val fromParsed = from.map(d => LocalDateTime.ofInstant(Instant.parse(d), ZoneOffset.UTC))
+    val toParsed = to.map(d => LocalDateTime.ofInstant(Instant.parse(d), ZoneOffset.UTC))
+    storiesDao.getStoriesFiltered(fromParsed, toParsed, author).map(stories =>
       Ok(Json.obj(
         "posts" -> stories,
         "count" -> stories.length
