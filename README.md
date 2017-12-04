@@ -4,6 +4,10 @@ Simple API to fetch VDM stories [from official website](http://www.viedemerde.fr
 
 ## Getting Started
 
+### Requirements
+Git, Scala (with Sbt), Docker
+
+### Steps
 - Clone project
 - `cd vdmAPI`
 - build docker image with `sbt compile docker:publishLocal`
