@@ -8,7 +8,13 @@ Simple API to fetch VDM stories [from official website](http://www.viedemerde.fr
 - `cd vdmAPI`
 - build docker image with `sbt docker:publishLocal`
 - start docker iamges with `docker-compose up`
-- start scraper import with `docker run vdmAPI "sbt \"runMain ScraperApp\""`
+- start scraper import with `docker-compose exec vdmapi bin/root -main ScraperApp`
+- REST api is available at [http://localhost:9000/<API>](http://localhost:9000/<API>). Ex : `curl http://localhost:9000/api/posts | json_pp`
+
+## Testing
+
+- Manual tests yet using postman collection located at `/test/vdmAPI.postman_collection.json`.
+- support for parsing tests using scalatest : `sbt test`
 
 ## API Description
 

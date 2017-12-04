@@ -1,0 +1,118 @@
+{
+	"variables": [],
+	"info": {
+		"name": "vdmAPI",
+		"_postman_id": "41efbd31-010a-6970-e52e-0036896a4964",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "get posts filtered",
+			"request": {
+				"url": {
+					"raw": "http://localhost:9000/api/posts?author=Anonyme&from=2017-11-25T14:30:00Z&to=2017-11-28T17:00:00Z",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"posts"
+					],
+					"query": [
+						{
+							"key": "author",
+							"value": "Anonyme",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "from",
+							"value": "2017-11-25T14:30:00Z",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "to",
+							"value": "2017-11-28T17:00:00Z",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get posts filtered invalid date",
+			"request": {
+				"url": {
+					"raw": "http://localhost:9000/api/posts?from=THISISNOTADATE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"posts"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "THISISNOTADATE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get posts",
+			"request": {
+				"url": "http://localhost:9000/api/posts",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get post by id",
+			"request": {
+				"url": "http://localhost:9000/api/posts/232",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get post by id not Found",
+			"request": {
+				"url": "http://localhost:9000/api/posts/5555555",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

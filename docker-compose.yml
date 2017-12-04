@@ -9,8 +9,8 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: admin
-  vdmAPI:
-    image: root:0.1-SNAPSHOT
+  vdmapi:
+    image: vdmapi:0.1-SNAPSHOT
     ports:
       - 9000:9000
     restart: always

@@ -15,3 +15,5 @@ libraryDependencies += "postgresql" % "postgresql" % "9.1-901-1.jdbc4"
 libraryDependencies += "com.typesafe.play" %% "play" % "2.6.7"
 
 EclipseKeys.preTasks := Seq(compile in Compile, compile in Test)
+
+packageName in Docker := "vdmapi"
